@@ -6,6 +6,8 @@ use App\Models\Event;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
+use function Laravel\Prompts\text;
+
 class EventController extends Controller
 {
     /**
@@ -13,7 +15,7 @@ class EventController extends Controller
      */
     public function index()
     {
-        $events = Event::all();
+        $events = Event::query()->latest()->get();
         return Inertia::render("Event/Index", ["events"=>$events]);
     }
 
@@ -22,7 +24,7 @@ class EventController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render("Event/Create");
     }
 
     /**
@@ -30,7 +32,17 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $validated = $this->validate($request, [
+            "title" => ["string","max:30", "required"],
+            "description" => ["string", "required"],
+            "location" => ["string", "required"],
+            "datetime" => ["date", "required"]
+        ]);
+
+        Event::create($validated);
+
+        return redirect("/events")->with("notif", "Berhasil menambahkan Data");
     }
 
     /**
@@ -44,24 +56,37 @@ class EventController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Event $event)
+    public function edit($id)
     {
-        //
+        $event = Event::findOrFail($id);
+        return Inertia::render("Event/Edit", ["event"=>$event]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Event $event)
+    public function update($id, Request $request)
     {
-        //
+        $event = Event::findOrFail($id);
+
+        $validated = $this->validate($request, [
+            "title" => ["string","max:30", "required"],
+            "description" => ["string", "required"],
+            "location" => ["string", "required"],
+            "datetime" => ["date", "required"]
+        ]);
+
+        $event->update($validated);
+        return redirect("/events")->with("notif", "Berhasil mengedit Data");
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Event $event)
+    public function destroy($id)
     {
-        //
+        $event = Event::findOrFail($id);
+        $event->delete();
+        return redirect("/events")->with("notif", "Berhasil menghapus Data");
     }
 }

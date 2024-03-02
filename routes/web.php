@@ -37,6 +37,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/posts',[PostController::class, 'index']);
     Route::get('/events',[EventController::class, 'index']);
+    Route::get('/events/create', [EventController::class, 'create']);
+    Route::post('/events/store', [EventController::class, 'store']);
+    Route::get('/events/{id}/edit', [EventController::class, "edit"]);
+    Route::put('/events/{id}', [EventController::class, "update"]);
+    Route::delete('/events/{id}', [EventController::class, "destroy"]);
 });
 
 require __DIR__.'/auth.php';
